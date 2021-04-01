@@ -1,0 +1,9 @@
+/.mnemonic-ganache
+/.mnemonic-rinkeby
+/test.env
+/run.env
+/.idea
+/node_modules
+/sol/build
+/resources/compound/addresses.ganache.json
+/test/resources/addresses.json
