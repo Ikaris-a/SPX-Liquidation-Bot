@@ -63,6 +63,7 @@ class Compound {
             console.log('compound ', accounts)
             accounts = _.chain(accounts)
                 .map(account => {
+                    console.log(account.address, 'token ', account.tokens)
                     return {
                         address: account.address,
                         tokens: account.tokens,
@@ -151,6 +152,8 @@ class Compound {
                     case 'cUSDT':
                     case 'cWBTC':
                     case 'cZRX':
+                    case 'cCOMP':
+                    case 'cUNI':
                         decimals[contractName] = 8;
                         break;
                     case 'BAT':
@@ -182,6 +185,10 @@ class Compound {
             return Compound.formatBN(bn, contractDecimals, precision);
         }
 
+        this.borrowBalanceCurrent = async function (accountAddress) {
+            uUnitsLoanedOutTo(accountAddress);
+        }
+
         this.getBalanceSheetForAccount = async function (accountAddress) {
             let balanceSheet = {
                 borrows: {},
@@ -208,7 +215,7 @@ class Compound {
                 let amount = await cTokenContract.methods.borrowBalanceCurrent(accountAddress).call();
                 amount = new BN(amount);
                 if (amount.gtn(0)) balanceSheet.borrows[symbol] = amount;
-                console.log('borrows amount', amount)
+                console.log('borrows amount', symbol, amount)
 
                 amount = await cTokenContract.methods.balanceOfUnderlying(accountAddress).call();
                 amount = new BN(amount);
@@ -311,5 +318,4 @@ Compound
     }
 
 
-module
-    .exports = Compound;
+module.exports = Compound;

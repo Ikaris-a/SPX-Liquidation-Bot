@@ -190,6 +190,7 @@ program.command('liquidate <address>')
         });
 
         let bestBorrow = await state.compound.highestAssetOf(balanceSheet.borrows);
+        console.log(bestBorrow)
         ui.div({
             text: 'Best borrowed asset: '
                 + bestBorrow.symbol

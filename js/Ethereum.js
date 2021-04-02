@@ -19,7 +19,6 @@ class Ethereum extends EventEmitter {
         let web3Provider;
 
         async function init() {
-            /*
             if (isInitialized) return;
             isInitialized = true;
             if (config.privateKey) {
@@ -53,27 +52,6 @@ class Ethereum extends EventEmitter {
                 .on('connected', _.bind(function (number) {
                     this.emit('connected', number);
                 }, this));
-
-            */
-            if (isInitialized) return;
-            isInitialized = true;
-            if (config.privateKey) {
-                // const httpProvider = new Web3.providers.HttpProvider(config.uri);
-                // HDWalletProvider.prototype.on = httpProvider.on.bind(httpProvider);
-                // web3Provider = new HDWalletProvider(config.privateKey, httpProvider);
-                // web3 = new Web3(web3Provider);
-                web3Provider = new Web3.providers.HttpProvider(config.uri);
-                web3 = new Web3(web3Provider);
-            } else {
-                web3Provider = new Web3.providers.HttpProvider(config.uri);
-                web3 = new Web3(web3Provider);
-            }
-            let onClose = function () {
-                if (web3Provider && web3Provider.end) web3Provider.end();
-                isInitialized = false;
-            };
-            if (web3Provider.on) web3Provider.on('close', onClose);
-
         }
 
 
