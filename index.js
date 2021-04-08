@@ -49,7 +49,7 @@ program.command('list')
         let block = await state.ethereum.getBlockNumber();
         console.log(chalk.red("Block:" + block));
 
-        let accounts = await state.compound.listAccounts({ maxHealth: 1.0, minWorthInEth: 0.5 });
+        let accounts = await state.compound.listAccounts({ maxHealth: 1000000000000000000, minWorthInEth: 0.5 });
 
         console.log(accounts)
 
@@ -68,10 +68,10 @@ program.command('list')
                 if (collateralUnderlying > 0) collaterals.push({ value: collateralUnderlying, symbol: token.symbol });
                 let borrowUnderlying = Compound.parseNumber(token.borrow_balance_underlying.value, 4);
                 if (borrowUnderlying > 0) borrows.push({ value: borrowUnderlying, symbol: token.symbol });
-                let supplyInterest = Compound.parseNumber(token.lifetime_supply_interest_accrued.value, 4);
-                if (supplyInterest > 0) supplyInterests[token.symbol] = supplyInterest;
-                let borrowInterest = Compound.parseNumber(token.lifetime_borrow_interest_accrued.value, 4);
-                if (borrowInterest > 0) borrowInterests[token.symbol] = borrowInterest;
+                //let supplyInterest = Compound.parseNumber(token.lifetime_supply_interest_accrued.value, 4);
+                //if (supplyInterest > 0) supplyInterests[token.symbol] = supplyInterest;
+                //let borrowInterest = Compound.parseNumber(token.lifetime_borrow_interest_accrued.value, 4);
+                //if (borrowInterest > 0) borrowInterests[token.symbol] = borrowInterest;
             });
 
             let ui = cliui({ wrap: false });
@@ -87,50 +87,52 @@ program.command('list')
                 text: chalk.underline("Collaterals"),
                 width: 18,
                 padding: [1, 2, 0, 1]
-            }, {
-                text: "(Interest)",
-                width: 18,
-                padding: [1, 2, 0, 0]
             },
+                //  {
+                //     text: "(Interest)",
+                //     width: 18,
+                //     padding: [1, 2, 0, 0]
+                // },
                 {
                     text: chalk.underline("Borrows"),
                     width: 18,
                     padding: [1, 2, 0, 0]
-                },
-                {
-                    text: "(Interest)",
-                    width: 18,
-                    padding: [1, 2, 0, 0]
-                });
+                }
+                // {
+                //     text: "(Interest)",
+                //     width: 18,
+                //     padding: [1, 2, 0, 0]
+                // }
+            );
             for (let row = 0; row < rows; row++) {
                 let collateral = collaterals[row];
                 let borrow = borrows[row];
-                let supplyInterest = collateral ? supplyInterests[collateral.symbol] : null;
-                let borrowInterest = borrow ? borrowInterests[borrow.symbol] : null;
+                // let supplyInterest = collateral ? supplyInterests[collateral.symbol] : null;
+                // let borrowInterest = borrow ? borrowInterests[borrow.symbol] : null;
                 ui.div({
                     text: collateral ? collateral.symbol + " " + collateral.value : "",
                     align: 'right',
                     width: 18,
                     padding: [0, 2, 0, 1]
                 },
-                    {
-                        text: supplyInterest ? "+" + supplyInterest : "",
-                        align: 'right',
-                        width: 18,
-                        padding: [0, 2, 0, 1]
-                    },
+                    // {
+                    //     text: supplyInterest ? "+" + supplyInterest : "",
+                    //     align: 'right',
+                    //     width: 18,
+                    //     padding: [0, 2, 0, 1]
+                    // },
                     {
                         text: borrow ? borrow.symbol + " " + borrow.value : "",
                         align: 'right',
                         width: 18,
                         padding: [0, 2, 0, 0]
                     },
-                    {
-                        text: borrowInterest ? "+" + borrowInterest : "",
-                        align: 'right',
-                        width: 18,
-                        padding: [0, 2, 0, 1]
-                    },
+                    // {
+                    //     text: borrowInterest ? "+" + borrowInterest : "",
+                    //     align: 'right',
+                    //     width: 18,
+                    //     padding: [0, 2, 0, 1]
+                    // },
                 );
             }
             ui.div("");

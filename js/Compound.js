@@ -4,11 +4,11 @@ const jsonfile = require('jsonfile');
 const Promise = require('bluebird');
 const superagent = require('superagent');
 const Web3 = require("web3");
-const abi = require("./../resources/compound/abi.cBAT.json");
+const abi = require("./../resources/compound/abi.cBTCK.json");
 
 
 
-const symbols = ['cBAT', 'cDAI', 'cETH', 'cREP', 'cSAI', 'cUSDC', 'cUSDT', 'cWBTC', 'cZRX', 'cCOMP', 'cUNI'];
+const symbols = ['cUSDK', 'cBTCK', 'cOKT', 'cLTCK', 'cOKB', 'cETHK', 'cDOTK'];
 const contractNames = _.union(symbols,
     ["Comptroller", "PriceOracle"],
     _.map(symbols, function (symbol) {
@@ -22,7 +22,7 @@ class Compound {
         let contracts = null;
         let cache = {};
 
-        this._fetchAccountService = async function ({ borrowerAccounts, minWorthInEth }) {
+        this._fetchAccountService = async function ({ borrowerAccounts, maxHealth, minWorthInEth }) {
             let networkName = state.ethereum.getNetworkName();
             const requestData = {
                 "network": networkName === 'ganache' ? 'mainnet' : networkName,
@@ -30,8 +30,8 @@ class Compound {
                 block_number: config.accountServiceBlock ? config.accountServiceBlock : 0
             };
 
-            requestData.max_health = { value: "1.0" };
-            if (minWorthInEth) requestData.min_borrow_value_in_eth = { value: "" + minWorthInEth };
+            requestData.max_health = maxHealth;
+            if (minWorthInEth) requestData.min_borrow_value_in_eth = minWorthInEth;
             if (borrowerAccounts && borrowerAccounts.length) requestData.addresses = borrowerAccounts;
 
             let accounts = [];
@@ -58,8 +58,8 @@ class Compound {
             return accounts;
         };
 
-        this.listAccounts = async function ({ borrowerAccounts, minWorthInEth, maxResults }) {
-            let accounts = await this._fetchAccountService({ borrowerAccounts, minWorthInEth });
+        this.listAccounts = async function ({ borrowerAccounts, maxHealth, minWorthInEth, maxResults }) {
+            let accounts = await this._fetchAccountService({ borrowerAccounts, maxHealth, minWorthInEth });
             console.log('compound ', accounts)
             accounts = _.chain(accounts)
                 .map(account => {
@@ -143,28 +143,24 @@ class Compound {
         this.getContractDecimals = function (contractName) {
             if (!decimals[contractName]) {
                 switch (contractName) {
-                    case 'cBAT':
-                    case 'cDAI':
-                    case 'cETH':
-                    case 'cREP':
-                    case 'cSAI':
-                    case 'cUSDC':
-                    case 'cUSDT':
-                    case 'cWBTC':
-                    case 'cZRX':
-                    case 'cCOMP':
-                    case 'cUNI':
-                        decimals[contractName] = 8;
+                    case 'cBTCK':
+                    case 'cUSDK':
+                    case 'cOKT':
+                    case 'cLTCK':
+                    case 'cOKB':
+                    case 'cETHK':
+                    case 'cDOTK':
+                        decimals[contractName] = 10;
                         break;
-                    case 'BAT':
+                    case 'BTCK':
+                    case 'USDK':
+                    case 'OKT':
+                    case 'OKB':
+                    case 'ETHK':
+                    case 'DOTK':
                     case 'ETH':
-                    case 'DAI':
-                    case 'REP':
-                    case 'SAI':
-                    case 'ZRX':
-                    case 'COMP':
-                    case 'UNI':
-                        decimals[contractName] = 18;
+                    case 'LTCK':
+                        decimals[contractName] = 10;
                         break;
                     case 'USDC':
                     case 'USDT':
@@ -210,7 +206,6 @@ class Compound {
             }, this));
 
             await Promise.all(Promise.map(accountMarketSymbols, _.bind(async function (symbol) {
-                console.log('symbol', symbol)
                 let cTokenContract = await this.getContract(symbol);
                 let amount = await cTokenContract.methods.borrowBalanceCurrent(accountAddress).call();
                 amount = new BN(amount);
